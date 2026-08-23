@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和弦聲部音準練習｜TCMC</title>
+<style>
+  :root{
+    --charcoal:#2E3A3F; --charcoal-2:#232C30; --charcoal-3:#20292D;
+    --teal:#0B6E6E; --teal-bright:#2FBFAA; --teal-soft:#8FD9C8;
+    --gold:#E8A33D; --green:#33D17A; --amber:#F2B84B; --paper:#EAF2F1;
+    --muted:#8FA3A0; --danger:#E2685A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 20% -10%, #33424A 0%, var(--charcoal) 55%, #232C30 100%);
+    color:var(--paper);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:28px 18px 60px;}
+  header{margin-bottom:22px;}
+  .header-top{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .lang-btn{
+    padding:6px 14px;border-radius:20px;border:1.5px solid rgba(234,242,241,0.2);
+    background:rgba(255,255,255,0.03);color:var(--paper);font-size:12.5px;font-weight:700;
+    cursor:pointer;letter-spacing:.05em;transition:all .15s ease;flex:none;
+  }
+  .lang-btn:hover{border-color:var(--teal-bright);color:#fff;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;color:var(--teal-bright);font-weight:700;text-transform:uppercase;margin-bottom:6px;}
+  h1{font-family:"Noto Serif TC",serif;font-size:clamp(24px,4vw,32px);margin:0 0 6px;font-weight:700;color:#fff;letter-spacing:.02em;}
+  .sub{color:var(--muted);font-size:14px;line-height:1.6;max-width:640px;}
+
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.015));
+    border:1px solid rgba(234,242,241,0.09);border-radius:14px;padding:18px 20px;margin-bottom:16px;
+  }
+  .card h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:700;}
+
+  .chord-input-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .chord-input-row input[type=text]{
+    flex:1;min-width:180px;padding:12px 14px;border-radius:10px;
+    border:1.5px solid rgba(234,242,241,0.18);background:rgba(255,255,255,0.03);
+    color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;
+  }
+  .chord-input-row input[type=text]:focus{outline:none;border-color:var(--teal-bright);}
+  .btn{
+    padding:12px 20px;border-radius:10px;border:none;font-size:14.5px;font-weight:700;
+    cursor:pointer;transition:transform .1s ease, opacity .15s ease;letter-spacing:.02em;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--teal-bright);color:#0d1f1d;}
+  .btn-stop{background:var(--danger);color:#2b0d09;}
+  .btn-ghost{background:rgba(255,255,255,0.06);color:var(--paper);border:1px solid rgba(234,242,241,0.18);}
+  .btn-ghost.on{background:rgba(232,163,61,0.22);border-color:var(--gold);color:#fff;}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .btn-sm{padding:7px 14px;font-size:13px;border-radius:8px;}
+
+  .chord-result{margin-top:14px;font-size:14px;line-height:1.8;}
+  .chord-result.error{color:var(--danger);}
+  .chord-result .tones{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .chord-result .tone-chip{
+    background:rgba(47,191,170,0.12);border:1px solid rgba(47,191,170,0.3);
+    border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600;color:var(--teal-soft);
+    cursor:pointer;transition:all .15s ease;font-family:inherit;
+  }
+  .chord-result .tone-chip:hover{background:rgba(47,191,170,0.22);border-color:var(--teal-bright);color:#fff;}
+  .chord-result .tone-chip:active{transform:scale(0.96);}
+
+  .voice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
+  .voice-row{
+    background:rgba(255,255,255,0.02);border:1px solid rgba(234,242,241,0.1);
+    border-radius:10px;padding:10px 12px;
+  }
+  .voice-row label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;}
+  .voice-row select{
+    width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(234,242,241,0.15);
+    background:var(--charcoal-3);color:var(--paper);font-size:14px;
+  }
+  .voice-row.assigned{border-color:rgba(47,191,170,0.35);background:rgba(47,191,170,0.05);}
+
+  .assign-list{display:flex;flex-direction:column;gap:8px;}
+  .assign-row{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:rgba(255,255,255,0.02);border:1px solid rgba(234,242,241,0.1);
+    border-radius:10px;padding:10px 14px;
+  }
+  .assign-row.is-target{border-color:var(--gold);background:rgba(232,163,61,0.08);}
+  .assign-row .part-label{font-weight:800;font-size:14px;color:#fff;min-width:34px;}
+  .assign-row .note-info{font-size:13px;color:var(--muted);flex:1;min-width:140px;}
+  .assign-row .note-info b{color:var(--paper);font-weight:700;}
+  .target-radio{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);cursor:pointer;}
+  .target-radio input{accent-color:var(--gold);}
+
+  .transport{display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+  .status-line{margin-left:auto;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none;}
+  .dot.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
+  .dot.err{background:var(--danger);}
+  .seq-status{
+    font-size:13.5px;color:var(--paper);background:rgba(255,255,255,0.04);
+    border-radius:8px;padding:8px 12px;margin-top:12px;border-left:3px solid var(--teal-bright);
+  }
+
+  .chart-card{padding:14px 14px 18px;}
+  .readout{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
+  .readout .item{font-size:12.5px;color:var(--muted);}
+  .readout .item b{display:block;font-size:19px;color:#fff;font-weight:700;margin-top:1px;}
+  .readout .item b.tune-ok{color:var(--green);}
+  .readout .item b.tune-high{color:var(--amber);}
+  .readout .item b.tune-low{color:var(--amber);}
+  canvas{width:100%;height:320px;display:block;border-radius:10px;}
+  @media (max-width:640px){
+    canvas{height:280px;}
+    .wrap{padding:14px 10px 32px;}
+    .card{padding:12px 14px;margin-bottom:10px;}
+    h1{font-size:20px;}
+    .sub{font-size:12.5px;}
+    .btn{padding:10px 14px;font-size:13.5px;}
+    .voice-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  .note{font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:10px;}
+  .note b{color:var(--paper);}
+  footer{margin-top:26px;font-size:12px;color:var(--muted);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-top">
+      <div class="eyebrow" id="txtEyebrow">TCMC · Harmony Ears</div>
+      <button class="lang-btn" id="btnLang" onclick="toggleLang()">EN</button>
+    </div>
+    <h1 id="txtH1">和弦聲部音準練習</h1>
+    <div class="sub" id="subHeader">輸入任意和弦符號，自由指派 8 個聲部（S1/S2/A1/A2/T1/T2/B1/B2）唱哪個和弦音、哪個八度，選一個當演唱目標，其餘當參考伴奏播放。</div>
+  </header>
+
+  <div class="card">
+    <h2 id="txtChordHeader">和弦輸入</h2>
+    <div class="chord-input-row">
+      <input type="text" id="chordInput" placeholder="例如 Am7(-5)、G7、Cmaj7..." value="Am7(-5)">
+      <button class="btn btn-primary" id="btnParse" onclick="handleParse()">解析</button>
+    </div>
+    <div class="chord-result" id="chordResult"></div>
+  </div>
+
+  <div class="card" id="voiceCard" style="display:none;">
+    <h2 id="txtVoiceHeader">聲部配置</h2>
+    <div class="voice-grid" id="voiceGrid"></div>
+  </div>
+
+  <div class="card" id="assignCard" style="display:none;">
+    <h2 id="txtAssignHeader">已指派聲部與演唱目標</h2>
+    <div class="assign-list" id="assignList"></div>
+  </div>
+
+  <div class="card" id="playbackCard" style="display:none;">
+    <h2 id="txtPlaybackHeader">播放控制</h2>
+    <div class="transport">
+      <button class="btn btn-ghost" id="btnPlayChord" onclick="toggleFullChord()" disabled>▶ 播放和弦</button>
+      <button class="btn btn-ghost" id="btnPlayTarget" onclick="playTargetNote()" disabled>▶ 播放目標音</button>
+      <button class="btn btn-primary" id="btnStart" onclick="startPractice()">▶ 開始</button>
+      <button class="btn btn-stop" id="btnStop" onclick="stopAll()" disabled>■ 停止</button>
+      <button class="btn btn-ghost" id="btnMicToggle" onclick="toggleMic()" disabled>🎤 開啟麥克風</button>
+      <div class="status-line">
+        <span class="dot" id="micDot"></span>
+        <span id="micText">麥克風未啟用</span>
+      </div>
+    </div>
+    <div class="seq-status" id="seqStatus">設定好聲部與演唱目標後，按「開始」播放示範並開始偵測。</div>
+  </div>
+
+  <div class="card chart-card" id="chartCard" style="display:none;">
+    <h2 id="txtChartHeader">音高圖</h2>
+    <canvas id="chart"></canvas>
+    <div class="readout">
+      <div class="item"><span id="txtReadoutHz">目前音高</span><b id="curHz">—</b></div>
+      <div class="item"><span id="txtReadoutCents">與目標偏差</span><b id="curCents">—</b></div>
+      <div class="item"><span id="txtReadoutJudge">判定</span><b id="curJudge">—</b></div>
+      <div class="item" style="opacity:.6;"><span id="txtReadoutDiag">訊號診斷</span><b id="curDiag" style="font-size:12px;font-weight:600;">—</b></div>
+    </div>
+    <div class="note" id="txtNote">粗橫線＝各聲部音高，<b>金色</b>為目前的演唱目標。你的即時音高軌跡落在目標 ±6 音分容忍帶內顯示<b>綠色</b>，超出則<b>紅色</b>。開始後伴奏會播放你勾選「播放」的聲部，目標聲部本身不會播放（需要你自己唱出來）。</div>
+  </div>
+
+  <footer>
+    <span id="txtFooter1">此練習需要麥克風權限以偵測音高。若在對話框內的預覽無法要求權限，請下載此 HTML 檔案後直接用瀏覽器開啟。</span><br>
+    <span id="txtFooter2">台灣合唱音樂中心製作 · Harmony Ears</span><br>
+    <span style="opacity:.5;"><span id="txtVersionPrefix">App 版本：</span>v1.0</span>
+  </footer>
+
+</div>
+<script>
+/* ====================== Chord parser (embedded) ====================== */
+const NOTE_TO_SEMITONE = {
+  'C':0,'C#':1,'DB':1,'D':2,'D#':3,'EB':3,'E':4,'FB':4,'E#':5,
+  'F':5,'F#':6,'GB':6,'G':7,'G#':8,'AB':8,'A':9,'A#':10,'BB':10,
+  'B':11,'CB':11,'B#':0,
+};
+const DEGREE_LABEL_BASIC = ['1','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+function degreeLabelForPitchClass(pc){ return DEGREE_LABEL_BASIC[((pc%12)+12)%12]; }
+
+const MAJOR_ROOT_TABLE = {
+  '':[0,4,7], 'MAJ':[0,4,7], 'MA':[0,4,7],
+  'DIM':[0,3,6], 'O':[0,3,6], 'AUG':[0,4,8], '+':[0,4,8], '5':[0,7],
+  '6':[0,4,7,9],
+  '7':[0,4,7,10], 'MAJ7':[0,4,7,11], 'MA7':[0,4,7,11], 'M7':[0,4,7,11], 'Δ7':[0,4,7,11], 'Δ':[0,4,7,11],
+  '7B5':[0,4,6,10], '7#5':[0,4,8,10], 'DIM7':[0,3,6,9], 'Ø':[0,3,6,10], 'Ø7':[0,3,6,10],
+  '9':[0,4,7,10,14], 'MAJ9':[0,4,7,11,14], 'ADD9':[0,4,7,14],
+  'SUS2':[0,2,7], 'SUS4':[0,5,7], 'SUS':[0,5,7], '7SUS4':[0,5,7,10], '7SUS':[0,5,7,10],
+  '11':[0,4,7,10,14,17], '13':[0,4,7,10,14,17,21],
+};
+const MINOR_ROOT_TABLE = {
+  '':[0,3,7], '6':[0,3,7,9], '7':[0,3,7,10], '7B5':[0,3,6,10], 'B5':[0,3,6,10],
+  'MAJ7':[0,3,7,11], '9':[0,3,7,10,14], 'MAJ9':[0,3,7,11,14], 'ADD9':[0,3,7,14],
+};
+const QUALITY_LABEL_MAP = {
+  'MAJ:':'大三和弦','MIN:':'小三和弦','DIM:':'減三和弦','AUG:':'增三和弦','+:':'增三和弦','5:':'強力和弦（無三音）',
+  '6:':'大六和弦','MIN:6':'小六和弦',
+  '7:':'屬七和弦','MAJ7:':'大七和弦','M7:':'大七和弦','Δ7:':'大七和弦','Δ:':'大七和弦','MIN:7':'小七和弦',
+  '7B5:':'屬七減五','7#5:':'屬七增五','MIN:7B5':'半減七（m7♭5）','MIN:B5':'半減七（m7♭5）',
+  'Ø:':'半減七（m7♭5）','Ø7:':'半減七（m7♭5）','DIM7:':'減七和弦',
+  'MIN:MAJ7':'小大七和弦（mMaj7）',
+  '9:':'屬九和弦','MAJ9:':'大九和弦','MIN:9':'小九和弦','MIN:MAJ9':'小大九和弦','ADD9:':'加九和弦','MIN:ADD9':'小加九和弦',
+  'SUS2:':'掛二和弦','SUS4:':'掛四和弦','SUS:':'掛四和弦','7SUS4:':'屬七掛四','7SUS:':'屬七掛四',
+  '11:':'屬十一和弦','13:':'屬十三和弦',
+};
+function normalizeAccidentals(s){ return s.replace(/♭/g,'b').replace(/♯/g,'#').replace(/−/g,'-').replace(/\u2013|\u2014/g,'-'); }
+// 括號裡的修飾語（例如 (-5)、(#11)、(+13)、(b9)）通用機制：符合現有級數位置就取代，沒有就新增延伸音。
+const DEGREE_NATURAL_SEMITONE = {3:4, 5:7, 6:9, 7:11, 9:14, 11:17, 13:21};
+function applyAlteration(intervals, alterToken){
+  const m = alterToken.match(/^([b#+-]?)(\d+)$/);
+  if(!m) return intervals;
+  const [, sign, degStr] = m;
+  const deg = parseInt(degStr,10);
+  const natural = DEGREE_NATURAL_SEMITONE[deg];
+  if(natural===undefined) return intervals;
+  let semitone = natural;
+  if(sign==='b' || sign==='-') semitone -= 1;
+  else if(sign==='#' || sign==='+') semitone += 1;
+  let replaced = false;
+  const result = intervals.map(iv=>{
+    if(!replaced && Math.abs(iv-natural)<=2){ replaced = true; return semitone; }
+    return iv;
+  });
+  if(!replaced) result.push(semitone);
+  return [...new Set(result)].sort((a,b)=>a-b);
+}
+function parseChordSymbol(input){
+  if(!input || typeof input !== 'string') return {error:'empty', message:'請輸入和弦符號'};
+  let s = normalizeAccidentals(input.trim());
+  s = s.replace(/\s+/g,'');
+  if(s.length===0) return {error:'empty', message:'請輸入和弦符號'};
+  const rootMatch = s.match(/^([A-Ga-g])(#|b)?/);
+  if(!rootMatch) return {error:'no_root', message:'無法辨識根音，請以 A-G 開頭（可加 # 或 b）'};
+  const rootLetter = rootMatch[1].toUpperCase();
+  const accidental = rootMatch[2] || '';
+  const rootKey = rootLetter + (accidental==='#' ? '#' : accidental==='b' ? 'B' : '');
+  const rootSemitone = NOTE_TO_SEMITONE[rootKey];
+  if(rootSemitone===undefined) return {error:'bad_root', message:'無法辨識的根音'};
+  const rootDisplay = rootLetter + accidental;
+  let suffix = s.slice(rootMatch[0].length);
+  // 先抽出所有括號內容當作修飾語，剩下的才是核心和弦種類
+  const alterationTokens = [];
+  suffix = suffix.replace(/\(([^)]*)\)/g, (_, inner)=>{
+    const tokens = inner.match(/[b#+-]?\d+/g) || [];
+    alterationTokens.push(...tokens);
+    return '';
+  });
+  let isMinor = false;
+  if(/^-(?!\d)/.test(suffix)){ isMinor = true; suffix = suffix.slice(1); }
+  else if(/^m/.test(suffix) && !/^maj/i.test(suffix) && !/^ma\b/i.test(suffix)){ isMinor = true; suffix = suffix.slice(1); }
+  suffix = suffix.replace(/-(\d+)/g, 'b$1'); // 相容沒加括號的寫法，例如 "Cm7b5"
+  const suffixUpper = suffix.toUpperCase();
+  const table = isMinor ? MINOR_ROOT_TABLE : MAJOR_ROOT_TABLE;
+  let intervals = table[suffixUpper];
+  if(!intervals) return {error:'unknown_quality', message:'無法辨識的和弦種類："'+suffix+'"（根音 '+rootDisplay+' 已正確辨識）'};
+  alterationTokens.forEach(tok=>{ intervals = applyAlteration(intervals, tok); });
+  const qualityLabel = isMinor
+    ? (QUALITY_LABEL_MAP['MIN:'+suffixUpper] || (suffixUpper===''? '小三和弦' : '小和弦（'+suffix+'）'))
+    : (QUALITY_LABEL_MAP[suffixUpper+':'] || (suffixUpper===''? '大三和弦' : '和弦（'+suffix+'）'));
+  const chordTones = intervals.map(iv=>{
+    const pitchClassSemitone = ((rootSemitone+iv)%12+12)%12;
+    return { intervalFromRoot:iv, pitchClassSemitone, degreeLabel: degreeLabelForPitchClass(pitchClassSemitone) };
+  });
+  const alterationSuffix = alterationTokens.length ? '('+alterationTokens.join(',')+')' : '';
+  const displayName = rootDisplay + (isMinor?'m':'') + suffix + alterationSuffix;
+  return { ok:true, rootDisplay, rootSemitone, isMinor, qualityLabel, intervals, chordTones, displayName };
+}
+
+/* ====================== Note range helpers ====================== */
+const NOTE_NAMES_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function midiToFreq(midi){ return 440*Math.pow(2,(midi-69)/12); }
+function noteNameOctave(midi){
+  const pc = ((midi%12)+12)%12;
+  const octave = Math.floor(midi/12)-1;
+  return NOTE_NAMES_SHARP[pc]+octave;
+}
+const RANGE_LOW_MIDI = 45, RANGE_HIGH_MIDI = 81; // A2 .. A5
+function instancesInRange(pitchClassSemitone){
+  const out=[];
+  for(let midi=RANGE_LOW_MIDI; midi<=RANGE_HIGH_MIDI; midi++){
+    if(((midi%12)+12)%12 === pitchClassSemitone) out.push({midi, name:noteNameOctave(midi), freq:midiToFreq(midi)});
+  }
+  return out;
+}
+
+/* ====================== i18n ====================== */
+const I18N = {
+  zh: {
+    title:'和弦聲部音準練習｜TCMC', eyebrow:'TCMC · Harmony Ears', h1:'和弦聲部音準練習',
+    sub:'輸入任意和弦符號，自由指派 8 個聲部（S1/S2/A1/A2/T1/T2/B1/B2）唱哪個和弦音、哪個八度，選一個當演唱目標，其餘當參考伴奏播放。',
+    chordHeader:'和弦輸入', chordPlaceholder:'例如 Am7(-5)、G7、Cmaj7...', btnParse:'解析', btnPlayTarget:'播放目標音', btnPlayTargetOn:'停止目標音',
+    voiceHeader:'聲部配置', assignHeader:'已指派聲部與演唱目標', playbackHeader:'播放控制',
+    btnStart:'▶ 開始', btnStop:'■ 停止', chordPlayOff:'播放和弦', chordPlayOn:'停止和弦',
+    micOff:'開啟麥克風', micOn:'關閉麥克風', micNotEnabled:'麥克風未啟用', micListening:'聆聽中',
+    micDenied:'無法取得麥克風權限（請於瀏覽器允許，或下載後於本機開啟）',
+    seqDefault:'設定好聲部與演唱目標後，按「開始」播放示範並開始偵測。',
+    seqDemoTarget:(label)=>'播放目標音示範：'+label,
+    seqListening:'請開始唱目標聲部，對齊金色目標線（±6¢ 容忍帶）。',
+    seqListeningHeadphones:'請開始唱目標聲部，對齊金色目標線（±6¢ 容忍帶）。⚠️ 有伴奏聲部正在播放，若沒戴耳機，麥克風可能誤收伴奏音。',
+    seqStopped:'已停止。',
+    chartHeader:'音高圖', readoutHz:'目前音高', readoutCents:'與目標偏差', readoutJudge:'判定', readoutDiag:'訊號診斷',
+    diagText:(rms,clarity)=>'RMS '+rms+' / 清晰度 '+clarity,
+    judgeSilent:'靜音', judgeOk:'✓ 準確', judgeHigh:'偏高', judgeLow:'偏低',
+    noteText:'粗橫線＝各聲部音高，<b>金色</b>為目前的演唱目標。你的即時音高軌跡落在目標 ±6 音分容忍帶內顯示<b>綠色</b>，超出則<b>紅色</b>。開始後伴奏會播放你勾選「播放」的聲部，目標聲部本身不會播放（需要你自己唱出來）。<b>強烈建議戴耳機練習</b>：如果用喇叭外放，伴奏音容易被麥克風誤收、蓋過你的人聲，導致音準判定不準確。',
+    footerLine1:'此練習需要麥克風權限以偵測音高。若在對話框內的預覽無法要求權限，請下載此 HTML 檔案後直接用瀏覽器開啟。',
+    footerLine2:'台灣合唱音樂中心製作 · Harmony Ears', versionPrefix:'App 版本：', langBtn:'EN',
+    notUsed:'不使用', target:'演唱目標', setTarget:'設為目標', play:'播放', mute:'靜音',
+    chordErrorPrefix:'⚠️ ',
+  },
+  en: {
+    title:'Chord Voicing Trainer｜TCMC', eyebrow:'TCMC · Harmony Ears', h1:'Chord Voicing Trainer',
+    sub:'Type any chord symbol, freely assign 8 voice parts (S1/S2/A1/A2/T1/T2/B1/B2) to any chord tone at any octave, pick one as your singing target, and play the rest as accompaniment.',
+    chordHeader:'Chord Input', chordPlaceholder:'e.g. Am7(-5), G7, Cmaj7...', btnParse:'Parse', btnPlayTarget:'Play Target', btnPlayTargetOn:'Stop Target',
+    voiceHeader:'Voice Part Assignment', assignHeader:'Assigned Parts & Singing Target', playbackHeader:'Playback',
+    btnStart:'▶ Start', btnStop:'■ Stop', chordPlayOff:'Play Chord', chordPlayOn:'Stop Chord',
+    micOff:'Enable Mic', micOn:'Disable Mic', micNotEnabled:'Mic not enabled', micListening:'Listening',
+    micDenied:'Mic permission denied (allow it in your browser, or download this file and open it locally)',
+    seqDefault:'Configure the voicing and singing target, then press "Start" to hear a demo and begin detection.',
+    seqDemoTarget:(label)=>'Playing target demo: '+label,
+    seqListening:'Start singing the target part and align with the gold target line (±6¢ tolerance).',
+    seqListeningHeadphones:'Start singing the target part and align with the gold target line (±6¢ tolerance). ⚠️ Accompaniment is playing — without headphones, the mic may pick up the accompaniment instead of your voice.',
+    seqStopped:'Stopped.',
+    chartHeader:'Pitch Chart', readoutHz:'Current Pitch', readoutCents:'Offset from Target', readoutJudge:'Judgement', readoutDiag:'Signal Diagnostics',
+    diagText:(rms,clarity)=>'RMS '+rms+' / Clarity '+clarity,
+    judgeSilent:'Silent', judgeOk:'✓ In tune', judgeHigh:'Sharp', judgeLow:'Flat',
+    noteText:'Thick lines = each assigned voice part\'s pitch, <b>gold</b> is the current singing target. Your live pitch trace shows <b>green</b> within ±6 cents of the target, <b>red</b> outside it. Once started, the accompaniment plays whichever parts you\'ve toggled "Play" — the target part itself never plays back (you supply it). <b>Headphones are strongly recommended</b>: over speakers, the accompaniment can bleed into the mic and get mistaken for your voice, throwing off the pitch judgement.',
+    footerLine1:'This exercise needs microphone access to detect pitch. If the in-chat preview can\'t request permission, download this HTML file and open it directly in a browser.',
+    footerLine2:'Produced by Taiwan Choral Music Center · Harmony Ears', versionPrefix:'App Version: ', langBtn:'中文',
+    notUsed:'Not used', target:'Target', setTarget:'Set as target', play:'Play', mute:'Mute',
+    chordErrorPrefix:'⚠️ ',
+  }
+};
+function t(key){ return I18N[state.lang][key]; }
+
+/* ====================== State ====================== */
+const PARTS = ['S1','S2','A1','A2','T1','T2','B1','B2'];
+let state = {
+  lang:'zh',
+  chord:null,
+  voicing:{}, // part -> {pitchClassSemitone, degreeLabel, midi, name, freq} | undefined
+  playOn:{},  // part -> bool
+  target:null, // part name
+  running:false, listening:false,
+  audioCtx:null, tones:{}, targetPreviewTone:null, // part -> tone
+  analyser:null, micStream:null, micSource:null,
+  rafId:null, lastProcess:0, missCount:0, lastGoodPoint:null, centsHistory:[], jumpCandidate:null,
+  trace:[],
+  inTuneStreak:0,
+};
+const TOLERANCE = 6;
+const TRACE_MAX = 260;
+
+/* ====================== Chord parsing UI ====================== */
+function nearestInstanceToMiddle(pitchClassSemitone){
+  const instances = instancesInRange(pitchClassSemitone);
+  let best = instances[0];
+  for(const inst of instances){
+    if(Math.abs(inst.midi-60) < Math.abs(best.midi-60)) best = inst;
+  }
+  return best;
+}
+
+let previewTimer = null;
+async function previewTone(freq){
+  const ctx = await ensureAudioCtx();
+  if(previewTimer){ clearTimeout(previewTimer); previewTimer=null; }
+  if(state.previewTone){ fadeStop(state.previewTone, ctx, ctx.currentTime); }
+  const t0 = ctx.currentTime+0.02;
+  const tone = makeTone(ctx, freq);
+  tone.gain.gain.setValueAtTime(0, t0);
+  tone.gain.gain.linearRampToValueAtTime(0.30, t0+0.05);
+  tone.gain.gain.setValueAtTime(0.30, t0+0.7);
+  tone.gain.gain.linearRampToValueAtTime(0, t0+0.85);
+  state.previewTone = tone;
+  previewTimer = setTimeout(()=>{ stopTone(tone, ctx.currentTime); }, 950);
+}
+
+function handleParse(){
+  if(state.running) stopAll();
+  if(fullChordTones && state.audioCtx){
+    const tAudio = state.audioCtx.currentTime+0.02;
+    Object.values(fullChordTones).forEach(tone=>fadeStop(tone, state.audioCtx, tAudio));
+    fullChordTones = null;
+  }
+  // 換和弦前，先停掉任何在「配置階段」試聽播放中的聲部音（不然舊和弦的音會變成孤兒音一直響）
+  if(state.audioCtx && Object.keys(state.tones).length>0){
+    const tAudio = state.audioCtx.currentTime+0.02;
+    Object.values(state.tones).forEach(tone=>fadeStop(tone, state.audioCtx, tAudio));
+    state.tones = {};
+  }
+  if(state.targetPreviewTone && state.audioCtx){
+    fadeStop(state.targetPreviewTone, state.audioCtx, state.audioCtx.currentTime+0.02);
+    state.targetPreviewTone = null;
+  }
+  const raw = document.getElementById('chordInput').value;
+  const result = parseChordSymbol(raw);
+  const resultEl = document.getElementById('chordResult');
+  if(result.error){
+    resultEl.className = 'chord-result error';
+    resultEl.textContent = t('chordErrorPrefix') + result.message;
+    state.chord = null;
+    document.getElementById('voiceCard').style.display = 'none';
+    document.getElementById('assignCard').style.display = 'none';
+    document.getElementById('playbackCard').style.display = 'none';
+    document.getElementById('chartCard').style.display = 'none';
+    return;
+  }
+  state.chord = result;
+  resultEl.className = 'chord-result';
+  const tonesHtml = result.chordTones.map(ct=>{
+    const pcName = NOTE_NAMES_SHARP[ct.pitchClassSemitone];
+    const inst = nearestInstanceToMiddle(ct.pitchClassSemitone);
+    return `<button type="button" class="tone-chip" onclick="previewTone(${inst.freq})" title="${inst.name}">🔊 ${ct.degreeLabel} · ${pcName}</button>`;
+  }).join('');
+  resultEl.innerHTML = `<b>${result.displayName}</b> — ${result.qualityLabel}<div class="tones">${tonesHtml}</div>`;
+
+  // 重置聲部指派（換和弦後，原本指派的音可能不再屬於這個和弦）
+  state.voicing = {};
+  state.playOn = {};
+  state.target = null;
+  buildVoiceGrid();
+  renderAssignList();
+  document.getElementById('voiceCard').style.display = '';
+}
+
+function buildVoiceGrid(){
+  const grid = document.getElementById('voiceGrid');
+  grid.innerHTML = '';
+  PARTS.forEach(part=>{
+    const row = document.createElement('div');
+    row.className = 'voice-row';
+    row.id = 'voicerow-'+part;
+    const label = document.createElement('label');
+    label.textContent = part;
+    row.appendChild(label);
+    const select = document.createElement('select');
+    select.id = 'select-'+part;
+    select.innerHTML = buildSelectOptions();
+    select.onchange = ()=>handleVoiceSelect(part, select.value);
+    row.appendChild(select);
+    grid.appendChild(row);
+  });
+}
+
+function buildSelectOptions(){
+  let html = `<option value="">${t('notUsed')}</option>`;
+  state.chord.chordTones.forEach(ct=>{
+    const pcName = NOTE_NAMES_SHARP[ct.pitchClassSemitone];
+    const instances = instancesInRange(ct.pitchClassSemitone);
+    html += `<optgroup label="${ct.degreeLabel} · ${pcName}">`;
+    instances.forEach(inst=>{
+      const val = ct.pitchClassSemitone+'|'+ct.degreeLabel+'|'+inst.midi;
+      html += `<option value="${val}">${inst.name}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  return html;
+}
+
+function handleVoiceSelect(part, value){
+  if(state.running) stopAll();
+  // 這個聲部原本如果正在試聽播放，先停掉（不管是取消指派、還是換成別的音，
+  // 都不該讓舊頻率的孤兒音繼續響）
+  if(state.tones[part] && state.audioCtx){
+    fadeStop(state.tones[part], state.audioCtx, state.audioCtx.currentTime+0.02);
+    delete state.tones[part];
+  }
+  // 「播放和弦」正在播放時如果重新指派了某個聲部，那個聲部原本的音（舊頻率）也要停掉，
+  // 不然會變成播放中的和弦裡混著一個過時、沒被追蹤到的音。
+  if(fullChordTones && fullChordTones[part] && state.audioCtx){
+    fadeStop(fullChordTones[part], state.audioCtx, state.audioCtx.currentTime+0.02);
+    delete fullChordTones[part];
+  }
+  const row = document.getElementById('voicerow-'+part);
+  if(!value){
+    delete state.voicing[part];
+    delete state.playOn[part];
+    if(state.target===part) state.target=null;
+    row.classList.remove('assigned');
+  } else {
+    const [pcStr, degreeLabel, midiStr] = value.split('|');
+    const midi = parseInt(midiStr,10);
+    state.voicing[part] = {
+      pitchClassSemitone: parseInt(pcStr,10),
+      degreeLabel,
+      midi,
+      name: noteNameOctave(midi),
+      freq: midiToFreq(midi),
+    };
+    if(state.playOn[part]===undefined) state.playOn[part] = false; // 預設不播放，使用者自己選要聽哪些聲部，降低喇叭外放誤收的風險
+    row.classList.add('assigned');
+    if(!state.target) state.target = part; // 第一個指派的聲部預設當目標，使用者可再改
+    if(state.playOn[part] && state.audioCtx) updateLiveToneForPart(part); // 換了新音，若原本就設定要播放，直接用新頻率繼續播
+  }
+  renderAssignList();
+}
+
+function renderAssignList(){
+  const assignedParts = PARTS.filter(p=>state.voicing[p]);
+  const assignCard = document.getElementById('assignCard');
+  const playbackCard = document.getElementById('playbackCard');
+  const chartCard = document.getElementById('chartCard');
+  const btnPlayChord = document.getElementById('btnPlayChord');
+  const btnPlayTarget = document.getElementById('btnPlayTarget');
+  if(assignedParts.length===0){
+    assignCard.style.display='none';
+    playbackCard.style.display='none';
+    chartCard.style.display='none';
+    if(btnPlayChord) btnPlayChord.disabled = true;
+    if(btnPlayTarget) btnPlayTarget.disabled = true;
+    return;
+  }
+  assignCard.style.display='';
+  playbackCard.style.display='';
+  const chartWasHidden = chartCard.style.display === 'none';
+  chartCard.style.display='';
+  if(chartWasHidden){
+    // 卡片剛從 display:none 變成可見，canvas 在隱藏狀態下量到的尺寸是 0x0，
+    // 必須在真正可見之後重新量一次，不然畫面上什麼線都畫不出來。
+    resizeCanvas();
+  }
+  if(btnPlayChord) btnPlayChord.disabled = false; // 一律保持可以按，練習中會自動排除目標音（見 toggleFullChord）
+  if(btnPlayTarget) btnPlayTarget.disabled = !state.target; // 沒設定演唱目標就不能按
+
+  const list = document.getElementById('assignList');
+  list.innerHTML = '';
+  assignedParts.forEach(part=>{
+    const v = state.voicing[part];
+    const isTarget = state.target===part;
+    const row = document.createElement('div');
+    row.className = 'assign-row'+(isTarget?' is-target':'');
+    row.innerHTML = `
+      <span class="part-label">${part}</span>
+      <span class="note-info"><b>${v.name}</b> · ${v.degreeLabel} · ${v.freq.toFixed(1)} Hz</span>
+      ${isTarget
+        ? `<span style="color:var(--gold);font-weight:700;font-size:13px;">🎯 ${t('target')}</span>`
+        : `<button class="btn btn-ghost btn-sm" id="playtoggle-${part}" onclick="togglePartPlay('${part}')">${state.playOn[part] ? '■ '+t('mute') : '▶ '+t('play')}</button>`}
+      <label class="target-radio">
+        <input type="radio" name="targetRadio" value="${part}" ${isTarget?'checked':''} onchange="setTarget('${part}')">
+        ${t('setTarget')}
+      </label>
+    `;
+    list.appendChild(row);
+  });
+  drawChart();
+}
+
+function setTarget(part){
+  if(state.running) stopAll();
+  // 目標音不該從喇叭播出來（要靠使用者自己唱），如果這個聲部原本在試聽播放，先停掉
+  if(state.tones[part] && state.audioCtx){
+    fadeStop(state.tones[part], state.audioCtx, state.audioCtx.currentTime+0.02);
+    delete state.tones[part];
+  }
+  // 換目標時，之前那個目標音的播放（如果有開著）也要停掉
+  if(state.targetPreviewTone && state.audioCtx){
+    fadeStop(state.targetPreviewTone, state.audioCtx, state.audioCtx.currentTime+0.02);
+    state.targetPreviewTone = null;
+  }
+  state.target = part;
+  renderAssignList();
+}
+
+async function togglePartPlay(part){
+  state.playOn[part] = !state.playOn[part];
+  const btn = document.getElementById('playtoggle-'+part);
+  if(btn) btn.textContent = (state.playOn[part] ? '■ ' : '▶ ') + (state.playOn[part]? t('mute') : t('play'));
+  // 不管有沒有在正式練習中，按下去就要立刻聽得到聲音——方便配置聲部階段先試聽。
+  await ensureAudioCtx();
+  updateLiveToneForPart(part);
+}
+
+async function playTargetNote(){
+  if(!state.target || !state.voicing[state.target]) return;
+  const ctx = await ensureAudioCtx();
+  if(state.targetPreviewTone){
+    fadeStop(state.targetPreviewTone, ctx, ctx.currentTime+0.02);
+    state.targetPreviewTone = null;
+    setToggleLabel('btnPlayTarget', false, t('btnPlayTarget'), t('btnPlayTargetOn'));
+  } else {
+    const t0 = ctx.currentTime+0.02;
+    const tone = makeTone(ctx, state.voicing[state.target].freq);
+    tone.gain.gain.setValueAtTime(0, t0);
+    tone.gain.gain.linearRampToValueAtTime(0.30, t0+0.08);
+    state.targetPreviewTone = tone;
+    setToggleLabel('btnPlayTarget', true, t('btnPlayTarget'), t('btnPlayTargetOn'));
+  }
+}
+
+let fullChordTones = null;
+async function toggleFullChord(){
+  // 使用者可能戴耳機聽，喇叭外洩、麥克風誤收這個顧慮不成立——單純播放完整和弦（含目標音），
+  // 不管有沒有在練習中，永遠播全部已指派的聲部。
+  const assignedParts = PARTS.filter(p=>state.voicing[p]);
+  if(assignedParts.length===0) return;
+  const ctx = await ensureAudioCtx();
+  if(fullChordTones){
+    // 目前正在播放，這次按下去是要停止
+    const tAudio = ctx.currentTime+0.02;
+    Object.values(fullChordTones).forEach(tone=>fadeStop(tone, ctx, tAudio));
+    fullChordTones = null;
+    setToggleLabel('btnPlayChord', false, t('chordPlayOff'), t('chordPlayOn'));
+  } else {
+    fullChordTones = {};
+    const tNow = ctx.currentTime+0.03;
+    assignedParts.forEach(part=>{
+      const v = state.voicing[part];
+      const tone = makeTone(ctx, v.freq);
+      tone.gain.gain.setValueAtTime(0, tNow);
+      tone.gain.gain.linearRampToValueAtTime(0.16, tNow+0.25);
+      fullChordTones[part] = tone;
+    });
+    setToggleLabel('btnPlayChord', true, t('chordPlayOff'), t('chordPlayOn'));
+  }
+}
+
+function toggleLang(){
+  state.lang = state.lang==='zh' ? 'en' : 'zh';
+  applyLang();
+}
+function applyLang(){
+  document.title = t('title');
+  document.documentElement.lang = state.lang==='zh' ? 'zh-Hant' : 'en';
+  document.getElementById('txtEyebrow').textContent = t('eyebrow');
+  document.getElementById('txtH1').textContent = t('h1');
+  document.getElementById('subHeader').textContent = t('sub');
+  document.getElementById('txtChordHeader').textContent = t('chordHeader');
+  document.getElementById('chordInput').placeholder = t('chordPlaceholder');
+  document.getElementById('btnParse').textContent = t('btnParse');
+  setToggleLabel('btnPlayTarget', !!state.targetPreviewTone, t('btnPlayTarget'), t('btnPlayTargetOn'));
+  document.getElementById('txtVoiceHeader').textContent = t('voiceHeader');
+  document.getElementById('txtAssignHeader').textContent = t('assignHeader');
+  document.getElementById('txtPlaybackHeader').textContent = t('playbackHeader');
+  document.getElementById('btnStart').textContent = t('btnStart');
+  setToggleLabel('btnPlayChord', !!fullChordTones, t('chordPlayOff'), t('chordPlayOn'));
+  document.getElementById('btnStop').textContent = t('btnStop');
+  setToggleLabel('btnMicToggle', state.listening, t('micOff'), t('micOn'));
+  setMicStatus(state.listening ? t('micListening') : t('micNotEnabled'), state.listening ? 'ok' : undefined);
+  document.getElementById('txtChartHeader').textContent = t('chartHeader');
+  document.getElementById('txtReadoutHz').textContent = t('readoutHz');
+  document.getElementById('txtReadoutCents').textContent = t('readoutCents');
+  document.getElementById('txtReadoutJudge').textContent = t('readoutJudge');
+  document.getElementById('txtReadoutDiag').textContent = t('readoutDiag');
+  document.getElementById('txtNote').innerHTML = t('noteText');
+  document.getElementById('txtFooter1').textContent = t('footerLine1');
+  document.getElementById('txtFooter2').textContent = t('footerLine2');
+  document.getElementById('txtVersionPrefix').textContent = t('versionPrefix');
+  document.getElementById('btnLang').textContent = t('langBtn');
+  if(!state.running) document.getElementById('seqStatus').textContent = t('seqDefault');
+  if(state.chord) buildVoiceGrid(); // 重建選單讓「不使用」文字更新語言（選中值需還原）
+  renderAssignList();
+  drawChart();
+}
+
+/* ====================== Audio engine (proven pattern, reused) ====================== */
+async function ensureAudioCtx(){
+  if(!state.audioCtx){ state.audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+  if(state.audioCtx.state==='suspended'){
+    try{ await state.audioCtx.resume(); }catch(e){}
+  }
+  try{
+    const buf = state.audioCtx.createBuffer(1,1,state.audioCtx.sampleRate);
+    const src = state.audioCtx.createBufferSource();
+    src.buffer = buf; src.connect(state.audioCtx.destination); src.start(0);
+  }catch(e){}
+  return state.audioCtx;
+}
+function makeTone(ctx, freq){
+  const gain = ctx.createGain(); gain.gain.value=0;
+  gain.connect(ctx.destination);
+  const osc = ctx.createOscillator();
+  osc.type='sine'; osc.frequency.value=freq;
+  osc.connect(gain); osc.start();
+  return {oscs:[osc], gain};
+}
+function stopTone(tone, when){
+  if(!tone) return;
+  tone.oscs.forEach(o=>{ try{ o.stop(when); }catch(e){} });
+}
+function fadeStop(tone, ctx, when){
+  if(!tone) return;
+  try{
+    tone.gain.gain.cancelScheduledValues(when);
+    tone.gain.gain.setValueAtTime(tone.gain.gain.value, when);
+    tone.gain.gain.linearRampToValueAtTime(0, when+0.1);
+    stopTone(tone, when+0.14);
+  }catch(e){}
+}
+
+function setToggleLabel(id, on, offText, onText){
+  const el = document.getElementById(id);
+  el.textContent = (on?'■ ':'▶ ')+(on?onText:offText);
+  el.classList.toggle('on', on);
+}
+function updateStatus(text){ document.getElementById('seqStatus').textContent = text; }
+function setMicStatus(text, kind){
+  document.getElementById('micText').textContent = text;
+  const dot = document.getElementById('micDot');
+  dot.className = 'dot' + (kind?(' '+kind):'');
+}
+
+/* ====================== Practice sequence ====================== */
+async function startPractice(){
+  if(!state.target || !state.voicing[state.target]) return;
+  stopAll();
+  if(fullChordTones && state.audioCtx){
+    const tAudio = state.audioCtx.currentTime+0.02;
+    Object.values(fullChordTones).forEach(tone=>fadeStop(tone, state.audioCtx, tAudio));
+    fullChordTones = null;
+    setToggleLabel('btnPlayChord', false, t('chordPlayOff'), t('chordPlayOn'));
+  }
+  const ctx = await ensureAudioCtx();
+  await ensureMicStream();
+  state.trace = [];
+  state.inTuneStreak = 0;
+  state.running = true;
+  setButtonsRunning(true);
+
+  const targetInfo = state.voicing[state.target];
+  const t0 = ctx.currentTime + 0.08;
+  const demoOff = t0 + 1.1;
+
+  // 1. 先示範一次目標音，讓使用者知道要唱哪個音高
+  const demoTone = makeTone(ctx, targetInfo.freq);
+  demoTone.gain.gain.setValueAtTime(0, t0);
+  demoTone.gain.gain.linearRampToValueAtTime(0.30, t0+0.08);
+  demoTone.gain.gain.setValueAtTime(0.30, demoOff);
+  demoTone.gain.gain.linearRampToValueAtTime(0, demoOff+0.3);
+  state.tones['__demo__'] = demoTone;
+
+  updateStatus(t('seqDemoTarget')(state.target+' · '+targetInfo.name));
+
+  pendingTimer = setTimeout(()=>{
+    // 2. 目標音示範結束，換成播放使用者勾選「播放」的其他聲部，當作持續伴奏
+    let anyAccompanimentPlaying = false;
+    PARTS.forEach(part=>{
+      if(part===state.target) return;
+      const v = state.voicing[part];
+      if(!v || !state.playOn[part]) return;
+      const tone = makeTone(ctx, v.freq);
+      const tNow = ctx.currentTime+0.02;
+      tone.gain.gain.setValueAtTime(0, tNow);
+      tone.gain.gain.linearRampToValueAtTime(0.18, tNow+0.3);
+      state.tones[part] = tone;
+      anyAccompanimentPlaying = true;
+    });
+    updateStatus(anyAccompanimentPlaying ? t('seqListeningHeadphones') : t('seqListening'));
+    startListening();
+    document.getElementById('btnMicToggle').disabled = false;
+  }, (demoOff+0.4-ctx.currentTime)*1000);
+}
+
+let pendingTimer = null;
+
+function updateLiveToneForPart(part){
+  if(!state.audioCtx || part===state.target) return;
+  const ctx = state.audioCtx;
+  const v = state.voicing[part];
+  const tNow = ctx.currentTime+0.02;
+  if(state.playOn[part]){
+    if(!state.tones[part]){
+      const tone = makeTone(ctx, v.freq);
+      tone.gain.gain.setValueAtTime(0, tNow);
+      tone.gain.gain.linearRampToValueAtTime(0.18, tNow+0.25);
+      state.tones[part] = tone;
+    }
+  } else {
+    if(state.tones[part]){
+      fadeStop(state.tones[part], ctx, tNow);
+      delete state.tones[part];
+    }
+  }
+}
+
+function setButtonsRunning(running){
+  document.getElementById('btnStart').disabled = running;
+  document.getElementById('btnStop').disabled = !running;
+  document.getElementById('btnMicToggle').disabled = true;
+  document.getElementById('chordInput').disabled = running;
+  document.getElementById('btnParse').disabled = running;
+  // 「播放和弦」練習進行中也保持可以按，不整個鎖住——但 toggleFullChord() 內部
+  // 會在練習中自動排除目標音（避免喇叭播出目標音被麥克風誤收，變成沒唱就判定「準」）。
+  PARTS.forEach(p=>{
+    const sel = document.getElementById('select-'+p);
+    if(sel) sel.disabled = running;
+  });
+  if(!running){
+    setToggleLabel('btnMicToggle', false, t('micOff'), t('micOn'));
+  }
+}
+
+function stopAll(){
+  if(pendingTimer){ clearTimeout(pendingTimer); pendingTimer=null; }
+  const ctx = state.audioCtx;
+  if(ctx){
+    const tAudio = ctx.currentTime;
+    Object.keys(state.tones).forEach(k=>{ fadeStop(state.tones[k], ctx, tAudio); });
+    if(state.targetPreviewTone) fadeStop(state.targetPreviewTone, ctx, tAudio);
+    if(fullChordTones) Object.values(fullChordTones).forEach(tone=>fadeStop(tone, ctx, tAudio));
+  }
+  state.tones = {};
+  state.targetPreviewTone = null;
+  // 「播放和弦」用獨立變數記錄播放狀態，之前只有換和弦時會清掉它，
+  // 導致按了開始/停止之後這個變數會跟實際播放狀態脫節（明明沒在播，變數卻還記得「正在播放」，
+  // 下次按下去程式碼就誤判成「要停止」而不是「要開始」，結果什麼聲音都不會出來）。
+  fullChordTones = null;
+  setToggleLabel('btnPlayChord', false, t('chordPlayOff'), t('chordPlayOn'));
+  state.running = false;
+  stopListening();
+  setButtonsRunning(false);
+  updateStatus(t('seqStopped'));
+}
+
+/* ====================== Mic + pitch detection (proven pattern, reused) ====================== */
+function updateMicToggleLabel(){ setToggleLabel('btnMicToggle', state.listening, t('micOff'), t('micOn')); }
+function toggleMic(){
+  if(!state.running) return;
+  if(state.listening) stopListening(); else startListening();
+}
+async function ensureMicStream(){
+  if(state.micStream && state.micStream.getAudioTracks().some(tr=>tr.readyState==='live')) return state.micStream;
+  try{
+    // 這個 app 可能同時播放多個聲部的伴奏（不像前兩個 app 頂多兩三個音），
+    // 沒戴耳機、用喇叭外放時，伴奏音被麥克風誤收的風險高很多。
+    // 開啟 echoCancellation 讓瀏覽器主動消除「自己喇叭放出來又被自己麥克風收回去」的訊號，
+    // 對已經戴耳機的人幾乎沒有副作用（沒有回音可消，等於沒開），但能大幅降低外放時的誤判。
+    const stream = await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true, noiseSuppression:false, autoGainControl:false}});
+    state.micStream = stream;
+    return stream;
+  }catch(err){ state.micStream = null; return null; }
+}
+async function startListening(){
+  if(state.listening) return;
+  setToggleLabel('btnMicToggle', true, t('micOff'), t('micOn'));
+  try{
+    const stream = await ensureMicStream();
+    if(!stream) throw new Error('no mic stream');
+    const ctx = await ensureAudioCtx();
+    const src = ctx.createMediaStreamSource(stream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    src.connect(analyser);
+    state.analyser = analyser; state.micSource = src; state.listening = true;
+    setMicStatus(t('micListening'), 'ok');
+    updateMicToggleLabel();
+    state.lastProcess=0; state.missCount=0; state.lastGoodPoint=null; state.centsHistory=[]; state.jumpCandidate=null;
+    loopPitch(performance.now());
+  }catch(err){
+    setMicStatus(t('micDenied'), 'err');
+    updateMicToggleLabel();
+  }
+}
+function stopListening(){
+  state.listening=false;
+  if(state.rafId) cancelAnimationFrame(state.rafId);
+  state.rafId=null;
+  if(state.micStream){ state.micStream.getTracks().forEach(tr=>tr.stop()); }
+  state.micStream=null; state.analyser=null;
+  setMicStatus(t('micNotEnabled'));
+  updateMicToggleLabel();
+}
+
+function detectPitch(buf, sampleRate, minFreq, maxFreq){
+  minFreq = minFreq||55; maxFreq = maxFreq||1100;
+  const n = buf.length;
+  let mean=0; for(let i=0;i<n;i++) mean+=buf[i]; mean/=n;
+  let rms=0; for(let i=0;i<n;i++){ const v=buf[i]-mean; rms+=v*v; } rms=Math.sqrt(rms/n);
+  if(rms<0.0035) return {freq:-1, rms, clarity:0};
+  const maxLag = Math.min(n-2, Math.floor(sampleRate/minFreq));
+  const minLag = Math.max(2, Math.floor(sampleRate/maxFreq));
+  if(maxLag<=minLag) return {freq:-1, rms, clarity:0};
+  const nsdf = new Float32Array(maxLag+2);
+  for(let lag=minLag; lag<=maxLag; lag++){
+    let acf=0,m=0; const limit=n-lag;
+    for(let i=0;i<limit;i++){ const a=buf[i]-mean, b=buf[i+lag]-mean; acf+=a*b; m+=a*a+b*b; }
+    nsdf[lag] = m>0 ? (2*acf/m) : 0;
+  }
+  const peaks=[];
+  for(let lag=minLag+1; lag<maxLag; lag++){
+    if(nsdf[lag-1]<=nsdf[lag] && nsdf[lag]>=nsdf[lag+1] && nsdf[lag]>0) peaks.push(lag);
+  }
+  if(peaks.length===0) return {freq:-1, rms, clarity:0};
+  let globalMax=0; for(const p of peaks) if(nsdf[p]>globalMax) globalMax=nsdf[p];
+  if(globalMax<=0) return {freq:-1, rms, clarity:0};
+  const K=0.8;
+  let chosen = peaks.find(p=>nsdf[p]>=K*globalMax);
+  if(chosen===undefined) chosen=peaks[0];
+  const y1=nsdf[chosen-1], y2=nsdf[chosen], y3=nsdf[chosen+1];
+  let shift=0; const denom=(y1-2*y2+y3); if(denom!==0) shift=0.5*(y1-y3)/denom;
+  const refinedLag = chosen+shift;
+  const clarity = y2;
+  if(clarity<0.22) return {freq:-1, rms, clarity};
+  const freq = sampleRate/refinedLag;
+  if(freq<minFreq||freq>maxFreq) return {freq:-1, rms, clarity};
+  return {freq, rms, clarity};
+}
+
+function loopPitch(ts){
+  if(!state.listening) return;
+  state.rafId = requestAnimationFrame(loopPitch);
+  if(ts-state.lastProcess<40) return;
+  state.lastProcess = ts;
+  const analyser = state.analyser;
+  if(!analyser) return;
+  const buf = new Float32Array(analyser.fftSize);
+  analyser.getFloatTimeDomainData(buf);
+  const sampleRate = state.audioCtx.sampleRate;
+
+  const targetInfo = state.target ? state.voicing[state.target] : null;
+  let searchMin=55, searchMax=1100;
+  if(targetInfo){
+    // 目標音附近留寬鬆的緩衝空間（往下小三度、往上大六度左右），
+    // 避免唱偏就找不到、被迫抓到八度替代訊號 —— 跟之前七和弦 app 修正過的問題同樣道理。
+    searchMin = targetInfo.freq * 0.75;
+    searchMax = targetInfo.freq * 1.7;
+  }
+  const {freq, rms, clarity} = detectPitch(buf, sampleRate, searchMin, searchMax);
+
+  let point = {cents:null, voiced:false};
+  if(freq>0 && targetInfo){
+    const cents = 1200*Math.log2(freq/targetInfo.freq);
+    if(cents>-1200 && cents<1200){ point = {cents, voiced:true, freq}; }
+  }
+
+  const GRACE=12, JUMP_THRESHOLD=80, JUMP_CLARITY_MIN=0.42, JUMP_CONFIRM_FRAMES=3;
+  if(point.voiced){
+    const isBigJump = state.lastGoodPoint && Math.abs(point.cents-state.lastGoodPoint.cents)>JUMP_THRESHOLD;
+    if(isBigJump){
+      const candidate = state.jumpCandidate;
+      const matches = candidate && Math.abs(point.cents-candidate.cents)<40;
+      if(clarity>=JUMP_CLARITY_MIN && matches){ candidate.streak++; candidate.cents=point.cents; candidate.freq=point.freq; }
+      else if(clarity>=JUMP_CLARITY_MIN){ state.jumpCandidate={cents:point.cents,freq:point.freq,streak:1}; }
+      else { state.jumpCandidate=null; }
+      if(state.jumpCandidate && state.jumpCandidate.streak>=JUMP_CONFIRM_FRAMES){
+        state.missCount=0; state.lastGoodPoint=point; state.jumpCandidate=null;
+      } else if(state.lastGoodPoint && state.missCount<GRACE){ state.missCount++; point=state.lastGoodPoint; }
+      else { state.missCount++; }
+    } else { state.missCount=0; state.lastGoodPoint=point; state.jumpCandidate=null; }
+  } else if(state.lastGoodPoint && state.missCount<GRACE){ state.missCount++; point=state.lastGoodPoint; }
+  else { state.missCount++; state.lastGoodPoint=null; state.jumpCandidate=null; }
+
+  if(point.voiced){
+    state.centsHistory.push(point.cents);
+    if(state.centsHistory.length>3) state.centsHistory.shift();
+    if(state.centsHistory.length===3){
+      const sorted=[...state.centsHistory].sort((a,b)=>a-b);
+      point = {...point, cents:sorted[1]};
+    }
+  } else { state.centsHistory=[]; }
+
+  state.trace.push(point);
+  if(state.trace.length>TRACE_MAX) state.trace.shift();
+
+  updateReadout(point, rms, clarity);
+  drawChart();
+}
+
+function updateReadout(point, rms, clarity){
+  const hzEl=document.getElementById('curHz'), centsEl=document.getElementById('curCents'),
+        judgeEl=document.getElementById('curJudge'), diagEl=document.getElementById('curDiag');
+  if(diagEl && rms!==undefined) diagEl.textContent = t('diagText')(rms.toFixed(4), (clarity||0).toFixed(2));
+  if(!point.voiced){
+    hzEl.textContent='—'; centsEl.textContent='—'; judgeEl.textContent=t('judgeSilent');
+    judgeEl.className=''; state.inTuneStreak=0; return;
+  }
+  hzEl.textContent = point.freq.toFixed(1)+' Hz';
+  const diff = point.cents; // cents 已經是相對目標算出來的
+  centsEl.textContent = (diff>=0?'+':'')+diff.toFixed(1)+' ¢';
+  if(Math.abs(diff)<=TOLERANCE){ judgeEl.textContent=t('judgeOk'); judgeEl.className='tune-ok'; state.inTuneStreak++; }
+  else if(diff>0){ judgeEl.textContent=t('judgeHigh'); judgeEl.className='tune-high'; state.inTuneStreak=0; }
+  else { judgeEl.textContent=t('judgeLow'); judgeEl.className='tune-low'; state.inTuneStreak=0; }
+}
+
+/* ====================== Chart (dynamic range based on assigned notes) ====================== */
+const canvas = document.getElementById('chart');
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio||1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = Math.round(rect.width*dpr);
+  canvas.height = Math.round(rect.height*dpr);
+  drawChart();
+}
+window.addEventListener('resize', resizeCanvas);
+
+// 圖表用「相對 A2 (MIDI 45) 的音分」當內部座標系，這樣不管指派了哪些聲部，
+// Y 軸範圍都能動態算出來，涵蓋所有已指派的音符。
+const A2_MIDI = 45;
+function centsFromA2ForMidi(midi){ return (midi-A2_MIDI)*100; }
+function centsFromA2ForFreq(freq){ return 1200*Math.log2(freq/midiToFreq(A2_MIDI)); }
+
+function chartRange(){
+  const assigned = PARTS.filter(p=>state.voicing[p]).map(p=>state.voicing[p]);
+  if(assigned.length===0) return {lo:0, hi:1200};
+  const centsList = assigned.map(v=>centsFromA2ForMidi(v.midi));
+  let lo = Math.min(...centsList)-150;
+  let hi = Math.max(...centsList)+150;
+  if(hi-lo<400){ const mid=(hi+lo)/2; lo=mid-200; hi=mid+200; }
+  return {lo,hi};
+}
+function yFor(cents,H,range){
+  const pad=14;
+  const frac=(cents-range.lo)/(range.hi-range.lo);
+  return H-pad-frac*(H-2*pad);
+}
+
+function drawChart(){
+  const ctx2d = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, dpr=window.devicePixelRatio||1;
+  ctx2d.clearRect(0,0,W,H);
+  ctx2d.fillStyle='#20292D'; ctx2d.fillRect(0,0,W,H);
+
+  const range = chartRange();
+
+  ctx2d.strokeStyle='rgba(234,242,241,0.05)'; ctx2d.lineWidth=1*dpr;
+  for(let c=Math.ceil(range.lo/100)*100; c<=range.hi; c+=100){
+    const y=yFor(c,H,range);
+    ctx2d.beginPath(); ctx2d.moveTo(0,y); ctx2d.lineTo(W,y); ctx2d.stroke();
+  }
+
+  const targetInfo = state.target ? state.voicing[state.target] : null;
+  if(targetInfo){
+    const targetCents = centsFromA2ForMidi(targetInfo.midi);
+    const yHi=yFor(targetCents+TOLERANCE,H,range), yLo=yFor(targetCents-TOLERANCE,H,range);
+    ctx2d.fillStyle = state.inTuneStreak>10 ? 'rgba(51,209,122,0.20)' : 'rgba(232,163,61,0.11)';
+    ctx2d.fillRect(0,yHi,W,yLo-yHi);
+  }
+
+  // 畫每個已指派聲部的參考線
+  const assignedParts = PARTS.filter(p=>state.voicing[p]);
+  assignedParts.forEach(part=>{
+    const v = state.voicing[part];
+    const cents = centsFromA2ForMidi(v.midi);
+    const y = yFor(cents,H,range);
+    const isTarget = part===state.target;
+    ctx2d.strokeStyle = isTarget ? '#E8A33D' : '#2FBFAA';
+    ctx2d.lineWidth = (isTarget?4.5:2.5)*dpr;
+    ctx2d.beginPath(); ctx2d.moveTo(0,y); ctx2d.lineTo(W,y); ctx2d.stroke();
+    ctx2d.fillStyle = isTarget ? '#E8A33D' : '#8FD9C8';
+    ctx2d.font=(11*dpr)+'px "Noto Sans TC",sans-serif';
+    ctx2d.textBaseline='bottom';
+    ctx2d.fillText(part+' '+v.name+' ('+v.degreeLabel+')  '+v.freq.toFixed(1)+' Hz', 8*dpr, y-4*dpr);
+  });
+
+  // 即時音高軌跡
+  if(targetInfo){
+    ctx2d.lineWidth=2.5*dpr;
+    let started=false, lastColor=null;
+    const n=state.trace.length;
+    for(let i=0;i<n;i++){
+      const p=state.trace[i];
+      const x = W-(n-i)*(W/TRACE_MAX);
+      if(p.voiced){
+        const absCents = centsFromA2ForFreq(p.freq);
+        const y=yFor(absCents,H,range);
+        const inTune = Math.abs(p.cents)<=TOLERANCE;
+        const color = inTune?'#33D17A':'#E2685A';
+        if(!started||color!==lastColor){
+          if(started) ctx2d.stroke();
+          ctx2d.beginPath(); ctx2d.strokeStyle=color;
+          if(i>0 && state.trace[i-1].voiced){
+            const xp=W-(n-(i-1))*(W/TRACE_MAX);
+            const yp=yFor(centsFromA2ForFreq(state.trace[i-1].freq),H,range);
+            ctx2d.moveTo(xp,yp);
+          } else { ctx2d.moveTo(x,y); }
+          started=true; lastColor=color;
+        }
+        ctx2d.lineTo(x,y);
+      } else { if(started) ctx2d.stroke(); started=false; lastColor=null; }
+    }
+    if(started) ctx2d.stroke();
+    if(n>0){
+      const last=state.trace[n-1];
+      if(last.voiced){
+        const x=W-1*(W/TRACE_MAX);
+        const y=yFor(centsFromA2ForFreq(last.freq),H,range);
+        ctx2d.fillStyle = Math.abs(last.cents)<=TOLERANCE ? '#33D17A':'#E2685A';
+        ctx2d.beginPath(); ctx2d.arc(x,y,5*dpr,0,Math.PI*2); ctx2d.fill();
+      }
+    }
+  }
+}
+
+applyLang();
+resizeCanvas();
+drawChart();
+</script>
+</body>
+</html>
