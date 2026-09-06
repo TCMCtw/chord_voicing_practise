@@ -67,18 +67,56 @@
   }
   .chord-result .tone-chip:hover{background:rgba(47,191,170,0.22);border-color:var(--teal-bright);color:#fff;}
   .chord-result .tone-chip:active{transform:scale(0.96);}
+  .chord-result .tone-chip.armed{background:rgba(47,191,170,0.32);border-color:var(--teal-bright);color:#fff;box-shadow:0 0 0 1.5px var(--teal-bright);}
 
-  .voice-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;}
-  .voice-row{
-    background:rgba(255,255,255,0.02);border:1px solid rgba(234,242,241,0.1);
-    border-radius:10px;padding:10px 12px;
+  .voice-instruction{font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+  .voice-scroll-hint{font-size:11px;color:var(--muted);text-align:center;margin-bottom:6px;opacity:.7;}
+  .keyboard-scroll{overflow-x:auto;overflow-y:hidden;padding-bottom:6px;-webkit-overflow-scrolling:touch;}
+  .keyboard{position:relative;height:118px;margin-bottom:16px;}
+  .pkey{
+    position:absolute;top:0;border-radius:0 0 6px 6px;font-size:10.5px;font-weight:700;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:6px;gap:3px;
+    cursor:pointer;user-select:none;transition:background .12s ease, border-color .12s ease;
   }
-  .voice-row label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.04em;}
-  .voice-row select{
-    width:100%;padding:8px 10px;border-radius:8px;border:1.5px solid rgba(234,242,241,0.15);
-    background:var(--charcoal-3);color:var(--paper);font-size:14px;
+  .pkey.white{height:118px;background:rgba(255,255,255,0.04);border:1px solid rgba(234,242,241,0.14);color:var(--muted);z-index:1;}
+  .pkey.white:hover{background:rgba(255,255,255,0.08);}
+  .pkey.black{height:74px;background:var(--charcoal-3);border:1px solid rgba(0,0,0,0.5);color:var(--muted);z-index:2;}
+  .pkey.black:hover{background:#2a3438;}
+  /* 和弦音鍵預設（chordtone 但還沒 is-active）跟一般鍵完全同外觀，不主動洩漏是和弦音，
+     只有「已指派」或「目前正在探索這個和弦音」時才會用 .is-active 顯示高亮。 */
+  .pkey.chordtone.is-active{cursor:pointer;background:rgba(47,191,170,0.16);border-color:rgba(47,191,170,0.45);color:var(--teal-soft);}
+  .pkey.chordtone.is-active:hover{background:rgba(47,191,170,0.28);border-color:var(--teal-bright);}
+  .pkey.black.chordtone.is-active{background:linear-gradient(rgba(47,191,170,0.32),rgba(47,191,170,0.32)),var(--charcoal-3);border-color:var(--teal-bright);color:#eafff9;}
+  .pkey.is-target-key{border-color:var(--gold)!important;box-shadow:inset 0 0 0 1.5px var(--gold);}
+  .pkey .pkey-degree{font-size:9.5px;opacity:.75;font-weight:600;}
+  .pkey .pkey-note{font-size:10px;}
+  .pkey .pkey-tags{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;max-width:100%;}
+  .pkey .pkey-tag{
+    background:var(--teal-bright);color:#0d1f1d;border-radius:5px;padding:1px 4px;font-size:9.5px;font-weight:800;line-height:1.4;
   }
-  .voice-row.assigned{border-color:rgba(47,191,170,0.35);background:rgba(47,191,170,0.05);}
+  .pkey .pkey-tag.is-target{background:var(--gold);}
+
+  .voice-parts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .voice-chip{
+    display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;
+    background:rgba(255,255,255,0.03);border:1.5px solid rgba(234,242,241,0.16);
+    color:var(--paper);font-size:13px;font-weight:700;cursor:pointer;transition:all .12s ease;font-family:inherit;
+  }
+  .voice-chip:hover{border-color:var(--teal-bright);}
+  .voice-chip.armed{background:rgba(47,191,170,0.18);border-color:var(--teal-bright);color:#fff;}
+  .voice-chip.has-assignment{border-color:rgba(232,163,61,0.5);}
+  .voice-chip .chip-note{font-weight:600;color:var(--muted);font-size:12px;}
+  .voice-chip .chip-target{
+    background:none;border:none;font-size:13px;cursor:pointer;padding:0 0 0 4px;opacity:.4;
+    font-family:inherit;transition:opacity .12s ease;
+  }
+  .voice-chip .chip-target:hover{opacity:.8;}
+  .voice-chip .chip-target.is-target{opacity:1;}
+  .voice-chip .chip-remove{
+    background:none;border:none;color:var(--danger);font-size:12px;font-weight:700;cursor:pointer;padding:0 0 0 4px;
+    font-family:inherit;
+  }
+  .voice-chip.disabled{opacity:.4;pointer-events:none;}
 
   .assign-list{display:flex;flex-direction:column;gap:8px;}
   .assign-row{
@@ -118,7 +156,8 @@
     h1{font-size:20px;}
     .sub{font-size:12.5px;}
     .btn{padding:10px 14px;font-size:13.5px;}
-    .voice-grid{grid-template-columns:repeat(2,1fr);}
+    .voice-parts{gap:6px;}
+    .voice-chip{padding:7px 10px;font-size:12.5px;}
   }
   .note{font-size:12.5px;color:var(--muted);line-height:1.7;margin-top:10px;}
   .note b{color:var(--paper);}
@@ -148,7 +187,10 @@
 
   <div class="card" id="voiceCard" style="display:none;">
     <h2 id="txtVoiceHeader">聲部配置</h2>
-    <div class="voice-grid" id="voiceGrid"></div>
+    <div class="voice-instruction" id="txtVoiceInstruction">先點一個聲部，再點鍵盤上亮起來的鍵完成指派（第一個指派的聲部會自動成為 🎯 演唱目標，之後可以點聲部旁的 🎯 隨時改變目標）。點已指派的聲部可以移動到別的鍵，或用 ✕ 移除。</div>
+    <div class="voice-parts" id="voiceParts"></div>
+    <div class="voice-scroll-hint" id="txtVoiceScrollHint">← 可左右滑動查看完整鍵盤 →</div>
+    <div class="keyboard-scroll"><div class="keyboard" id="voiceKeyboard"></div></div>
   </div>
 
   <div class="card" id="assignCard" style="display:none;">
@@ -187,7 +229,7 @@
   <footer>
     <span id="txtFooter1">此練習需要麥克風權限以偵測音高。若在對話框內的預覽無法要求權限，請下載此 HTML 檔案後直接用瀏覽器開啟。</span><br>
     <span id="txtFooter2">台灣合唱音樂中心製作 · Harmony Ears</span><br>
-    <span style="opacity:.5;"><span id="txtVersionPrefix">App 版本：</span>v1.0</span>
+    <span style="opacity:.5;"><span id="txtVersionPrefix">App 版本：</span>v2.0</span>
   </footer>
 
 </div>
@@ -213,7 +255,8 @@ const MAJOR_ROOT_TABLE = {
 };
 const MINOR_ROOT_TABLE = {
   '':[0,3,7], '6':[0,3,7,9], '7':[0,3,7,10], '7B5':[0,3,6,10], 'B5':[0,3,6,10],
-  'MAJ7':[0,3,7,11], '9':[0,3,7,10,14], 'MAJ9':[0,3,7,11,14], 'ADD9':[0,3,7,14],
+  'MAJ7':[0,3,7,11], 'M7':[0,3,7,11], // 小大七和弦（minor-major 7th）：CmMaj7 跟常見簡寫 CmM7 是同一組音
+  '9':[0,3,7,10,14], 'MAJ9':[0,3,7,11,14], 'M9':[0,3,7,11,14], 'ADD9':[0,3,7,14],
 };
 const QUALITY_LABEL_MAP = {
   'MAJ:':'大三和弦','MIN:':'小三和弦','DIM:':'減三和弦','AUG:':'增三和弦','+:':'增三和弦','5:':'強力和弦（無三音）',
@@ -221,8 +264,8 @@ const QUALITY_LABEL_MAP = {
   '7:':'屬七和弦','MAJ7:':'大七和弦','M7:':'大七和弦','Δ7:':'大七和弦','Δ:':'大七和弦','MIN:7':'小七和弦',
   '7B5:':'屬七減五','7#5:':'屬七增五','MIN:7B5':'半減七（m7♭5）','MIN:B5':'半減七（m7♭5）',
   'Ø:':'半減七（m7♭5）','Ø7:':'半減七（m7♭5）','DIM7:':'減七和弦',
-  'MIN:MAJ7':'小大七和弦（mMaj7）',
-  '9:':'屬九和弦','MAJ9:':'大九和弦','MIN:9':'小九和弦','MIN:MAJ9':'小大九和弦','ADD9:':'加九和弦','MIN:ADD9':'小加九和弦',
+  'MIN:MAJ7':'小大七和弦（mMaj7）','MIN:M7':'小大七和弦（mMaj7）',
+  '9:':'屬九和弦','MAJ9:':'大九和弦','MIN:9':'小九和弦','MIN:MAJ9':'小大九和弦','MIN:M9':'小大九和弦','ADD9:':'加九和弦','MIN:ADD9':'小加九和弦',
   'SUS2:':'掛二和弦','SUS4:':'掛四和弦','SUS:':'掛四和弦','7SUS4:':'屬七掛四','7SUS:':'屬七掛四',
   '11:':'屬十一和弦','13:':'屬十三和弦',
 };
@@ -329,6 +372,8 @@ const I18N = {
     footerLine2:'台灣合唱音樂中心製作 · Harmony Ears', versionPrefix:'App 版本：', langBtn:'EN',
     notUsed:'不使用', target:'演唱目標', setTarget:'設為目標', play:'播放', mute:'靜音',
     chordErrorPrefix:'⚠️ ',
+    voiceInstruction:'先點一個聲部，再點上方「🔊」和弦音按鈕，該音所有還沒用過的八度就會亮起來，點其中一個完成指派（第一個指派的聲部會自動成為 🎯 演唱目標，之後可以點聲部旁的 🎯 隨時改變目標）。想疊八度就再點一次同一個和弦音按鈕。點已指派的聲部可以移動到別的鍵，或用 ✕ 移除。',
+    voiceUnassign:'移除', voiceScrollHint:'← 可左右滑動查看完整鍵盤 →',
   },
   en: {
     title:'Chord Voicing Trainer｜TCMC', eyebrow:'TCMC · Harmony Ears', h1:'Chord Voicing Trainer',
@@ -351,6 +396,8 @@ const I18N = {
     footerLine2:'Produced by Taiwan Choral Music Center · Harmony Ears', versionPrefix:'App Version: ', langBtn:'中文',
     notUsed:'Not used', target:'Target', setTarget:'Set as target', play:'Play', mute:'Mute',
     chordErrorPrefix:'⚠️ ',
+    voiceInstruction:'Tap a voice part first, then tap one of the "🔊" chord-tone buttons above \u2014 every unused octave of that tone lights up on the keyboard; tap one to assign it (the first part you assign automatically becomes the 🎯 singing target \u2014 tap the 🎯 next to any part anytime to change it). Tap the same chord-tone button again to reveal it for octave doubling. Tap an assigned part again to move it, or use \u2715 to remove it.',
+    voiceUnassign:'Remove', voiceScrollHint:'← scroll to see the full keyboard →',
   }
 };
 function t(key){ return I18N[state.lang][key]; }
@@ -433,7 +480,7 @@ function handleParse(){
   const tonesHtml = result.chordTones.map(ct=>{
     const pcName = NOTE_NAMES_SHARP[ct.pitchClassSemitone];
     const inst = nearestInstanceToMiddle(ct.pitchClassSemitone);
-    return `<button type="button" class="tone-chip" onclick="previewTone(${inst.freq})" title="${inst.name}">🔊 ${ct.degreeLabel} · ${pcName}</button>`;
+    return `<button type="button" class="tone-chip" id="tonechip-${ct.pitchClassSemitone}" onclick="handleToneChipClick(${ct.pitchClassSemitone}, ${inst.freq})" title="${inst.name}">🔊 ${ct.degreeLabel} · ${pcName}</button>`;
   }).join('');
   resultEl.innerHTML = `<b>${result.displayName}</b> — ${result.qualityLabel}<div class="tones">${tonesHtml}</div>`;
 
@@ -441,43 +488,201 @@ function handleParse(){
   state.voicing = {};
   state.playOn = {};
   state.target = null;
+  armedPart = null;
+  armedTone = null;
   buildVoiceGrid();
   renderAssignList();
   document.getElementById('voiceCard').style.display = '';
 }
 
+// ====================== Voice-part piano keyboard UI ======================
+// 用點鍵盤取代下拉選單：使用者先點一個聲部（armedPart），再點鍵盤上亮起來
+// 的和弦音琴鍵完成指派，不需要看懂 C3、A4 這種音名代碼。
+let armedPart = null;
+// armedTone：目前「探索中」的和弦音（依音級，不是依單一鍵）。使用者點上方和弦音按鈕
+// 才會設定這個值，此時鍵盤上該音級所有還沒被指派的八度會亮起來讓他選；
+// 指派完成或再點一次同一個按鈕就會清空，尚未探索的和弦音鍵盤上維持全暗，不主動顯示。
+let armedTone = null;
+
+function handleToneChipClick(pc, freq){
+  previewTone(freq);
+  armedTone = (armedTone === pc) ? null : pc;
+  renderVoiceKeyboard();
+  renderToneChips();
+}
+
+function renderToneChips(){
+  if(!state.chord) return;
+  state.chord.chordTones.forEach(ct=>{
+    const chip = document.getElementById('tonechip-'+ct.pitchClassSemitone);
+    if(chip) chip.classList.toggle('armed', armedTone === ct.pitchClassSemitone);
+  });
+}
+const WHITE_PC = [0,2,4,5,7,9,11];
+const KEY_W = 38, KEY_BW = 23;
+
 function buildVoiceGrid(){
-  const grid = document.getElementById('voiceGrid');
-  grid.innerHTML = '';
+  armedPart = null;
+  buildKeyboardKeys();
+  buildVoicePartsPalette();
+  renderVoiceKeyboard();
+}
+
+function buildKeyboardKeys(){
+  const kb = document.getElementById('voiceKeyboard');
+  kb.innerHTML = '';
+  const chordToneMap = {};
+  state.chord.chordTones.forEach(ct=>{ chordToneMap[ct.pitchClassSemitone] = ct; });
+
+  const whiteIndexByMidi = {};
+  let whiteIndex = 0;
+  for(let midi=RANGE_LOW_MIDI; midi<=RANGE_HIGH_MIDI; midi++){
+    if(WHITE_PC.includes(((midi%12)+12)%12)){ whiteIndexByMidi[midi]=whiteIndex; whiteIndex++; }
+  }
+  kb.style.width = (whiteIndex*KEY_W)+'px';
+
+  function makeKey(midi, pc, isWhite){
+    const el = document.createElement('div');
+    el.className = 'pkey '+(isWhite?'white':'black');
+    if(isWhite){
+      el.style.left = (whiteIndexByMidi[midi]*KEY_W)+'px';
+      el.style.width = (KEY_W-2)+'px';
+    } else {
+      const beforeIdx = whiteIndexByMidi[midi-1];
+      el.style.left = ((beforeIdx+1)*KEY_W - KEY_BW/2)+'px';
+      el.style.width = KEY_BW+'px';
+    }
+    const ct = chordToneMap[pc];
+    const freq = midiToFreq(midi);
+    if(ct){
+      el.classList.add('chordtone');
+      el.dataset.midi = midi;
+      el.dataset.pc = pc;
+      el.dataset.degree = ct.degreeLabel;
+      el.dataset.note = noteNameOctave(midi);
+      // 內容（標籤／音級／音名）留給 renderVoiceKeyboard() 依「探索中／已指派」狀態動態決定要不要顯示，
+      // 一開始不主動洩漏這是和弦音，避免誤導使用者要從這裡開始選。
+      el.onclick = ()=>handleKeyClick(midi, pc, ct.degreeLabel, freq);
+    } else {
+      if(isWhite) el.innerHTML = '<div class="pkey-note">'+noteNameOctave(midi)+'</div>';
+      el.onclick = ()=>previewTone(freq); // 非和弦音的鍵也能點來聽音高，方便使用者用耳朵探索鍵盤
+    }
+    return el;
+  }
+  for(let midi=RANGE_LOW_MIDI; midi<=RANGE_HIGH_MIDI; midi++){
+    const pc = ((midi%12)+12)%12;
+    if(WHITE_PC.includes(pc)) kb.appendChild(makeKey(midi, pc, true));
+  }
+  for(let midi=RANGE_LOW_MIDI; midi<=RANGE_HIGH_MIDI; midi++){
+    const pc = ((midi%12)+12)%12;
+    if(!WHITE_PC.includes(pc)) kb.appendChild(makeKey(midi, pc, false));
+  }
+}
+
+function buildVoicePartsPalette(){
+  const wrap = document.getElementById('voiceParts');
+  wrap.innerHTML = '';
   PARTS.forEach(part=>{
-    const row = document.createElement('div');
-    row.className = 'voice-row';
-    row.id = 'voicerow-'+part;
-    const label = document.createElement('label');
-    label.textContent = part;
-    row.appendChild(label);
-    const select = document.createElement('select');
-    select.id = 'select-'+part;
-    select.innerHTML = buildSelectOptions();
-    select.onchange = ()=>handleVoiceSelect(part, select.value);
-    row.appendChild(select);
-    grid.appendChild(row);
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'voice-chip';
+    chip.id = 'chip-'+part;
+    chip.onclick = ()=>handleChipClick(part);
+    wrap.appendChild(chip);
   });
 }
 
-function buildSelectOptions(){
-  let html = `<option value="">${t('notUsed')}</option>`;
-  state.chord.chordTones.forEach(ct=>{
-    const pcName = NOTE_NAMES_SHARP[ct.pitchClassSemitone];
-    const instances = instancesInRange(ct.pitchClassSemitone);
-    html += `<optgroup label="${ct.degreeLabel} · ${pcName}">`;
-    instances.forEach(inst=>{
-      const val = ct.pitchClassSemitone+'|'+ct.degreeLabel+'|'+inst.midi;
-      html += `<option value="${val}">${inst.name}</option>`;
-    });
-    html += `</optgroup>`;
+function handleChipClick(part){
+  if(state.running) return;
+  armedPart = (armedPart===part) ? null : part;
+  renderVoiceKeyboard();
+}
+
+function handleChipRemove(part, ev){
+  ev.stopPropagation();
+  if(state.running) return;
+  handleVoiceSelect(part, '');
+  if(armedPart===part) armedPart=null;
+  renderVoiceKeyboard();
+}
+
+function handleKeyClick(midi, pc, degreeLabel, freq){
+  previewTone(freq); // 不管有沒有armed聲部，點鍵一律先播放預覽音
+  if(!armedPart) return; // 還沒選聲部，只播放預覽音，不指派
+  const alreadyAssignedHere = Object.values(state.voicing).some(v=>v && v.midi===midi);
+  const isRevealed = armedTone !== null && Number(armedTone) === Number(pc);
+  if(!alreadyAssignedHere && !isRevealed) return; // 這個音還沒被「探索」出來，不能直接指派，避免誤觸
+  handleVoiceSelect(armedPart, pc+'|'+degreeLabel+'|'+midi);
+  armedPart = null;
+  armedTone = null; // 指派完成後收起探索狀態，其餘還沒用到的八度會跟著暗回去
+  renderVoiceKeyboard();
+  renderToneChips();
+}
+
+function renderVoiceKeyboard(){
+  // 1. 整理「哪些鍵目前有指派」：同一個鍵可能被不只一個聲部指派（疊八度／同音）
+  const tagsByMidi = {};
+  PARTS.forEach(part=>{
+    const v = state.voicing[part];
+    if(!v) return;
+    const isTarget = state.target===part;
+    (tagsByMidi[v.midi] = tagsByMidi[v.midi] || []).push({part, isTarget});
   });
-  return html;
+  const assignedMidiSet = new Set(Object.keys(tagsByMidi).map(Number));
+
+  // 2. 每個和弦音鍵是否要亮、顯示什麼內容，取決於「已指派」或「目前正在探索這個和弦音」（armedTone）。
+  //    兩者都不成立時，維持跟非和弦音一樣的全暗外觀，不主動洩漏這裡是和弦音。
+  document.querySelectorAll('#voiceKeyboard .pkey.chordtone').forEach(el=>{
+    const midi = parseInt(el.dataset.midi, 10);
+    const pc = parseInt(el.dataset.pc, 10);
+    const isAssigned = assignedMidiSet.has(midi);
+    const isRevealed = armedTone !== null && Number(armedTone) === pc;
+    const isActive = isAssigned || isRevealed;
+    const isWhite = el.classList.contains('white');
+    el.classList.toggle('is-active', isActive);
+
+    if(!isActive){
+      el.classList.remove('is-target-key');
+      el.innerHTML = isWhite ? '<div class="pkey-note">'+el.dataset.note+'</div>' : '';
+      return;
+    }
+    const tags = tagsByMidi[midi] || [];
+    const isTargetKey = tags.some(tg=>tg.isTarget);
+    el.classList.toggle('is-target-key', isTargetKey);
+    const tagsHtml = tags.map(tg=>'<span class="pkey-tag'+(tg.isTarget?' is-target':'')+'">'+tg.part+'</span>').join('');
+    el.innerHTML = '<div class="pkey-tags">'+tagsHtml+'</div><div class="pkey-degree">'+el.dataset.degree+'</div><div class="pkey-note">'+el.dataset.note+'</div>';
+  });
+
+  // 3. 聲部面板（chip）渲染
+  PARTS.forEach(part=>{
+    const v = state.voicing[part];
+    const chip = document.getElementById('chip-'+part);
+    if(!chip) return;
+    const isTarget = state.target===part;
+    chip.classList.toggle('armed', armedPart===part);
+    chip.classList.toggle('has-assignment', !!v);
+    chip.classList.toggle('disabled', state.running);
+    chip.innerHTML = '<span>'+part+'</span>'+(v ? '<span class="chip-note">'+v.name+(isTarget?' · '+t('target'):'')+'</span>' : '');
+    if(v){
+      const targetBtn = document.createElement('button');
+      targetBtn.type = 'button';
+      targetBtn.className = 'chip-target'+(isTarget?' is-target':'');
+      targetBtn.title = isTarget ? t('target') : t('setTarget');
+      targetBtn.textContent = '🎯';
+      targetBtn.onclick = (ev)=>{ ev.stopPropagation(); if(!state.running) setTarget(part); };
+      chip.appendChild(targetBtn);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'chip-remove';
+      removeBtn.title = t('voiceUnassign');
+      removeBtn.textContent = '✕';
+      removeBtn.onclick = (ev)=>handleChipRemove(part, ev);
+      chip.appendChild(removeBtn);
+    }
+  });
+
+  renderToneChips();
 }
 
 function handleVoiceSelect(part, value){
@@ -494,12 +699,10 @@ function handleVoiceSelect(part, value){
     fadeStop(fullChordTones[part], state.audioCtx, state.audioCtx.currentTime+0.02);
     delete fullChordTones[part];
   }
-  const row = document.getElementById('voicerow-'+part);
   if(!value){
     delete state.voicing[part];
     delete state.playOn[part];
     if(state.target===part) state.target=null;
-    row.classList.remove('assigned');
   } else {
     const [pcStr, degreeLabel, midiStr] = value.split('|');
     const midi = parseInt(midiStr,10);
@@ -511,7 +714,6 @@ function handleVoiceSelect(part, value){
       freq: midiToFreq(midi),
     };
     if(state.playOn[part]===undefined) state.playOn[part] = false; // 預設不播放，使用者自己選要聽哪些聲部，降低喇叭外放誤收的風險
-    row.classList.add('assigned');
     if(!state.target) state.target = part; // 第一個指派的聲部預設當目標，使用者可再改
     if(state.playOn[part] && state.audioCtx) updateLiveToneForPart(part); // 換了新音，若原本就設定要播放，直接用新頻率繼續播
   }
@@ -582,6 +784,7 @@ function setTarget(part){
   }
   state.target = part;
   renderAssignList();
+  if(state.chord) renderVoiceKeyboard(); // 同步更新鍵盤上的金色外框與聲部面板的 🎯 狀態
 }
 
 async function togglePartPlay(part){
@@ -670,7 +873,9 @@ function applyLang(){
   document.getElementById('txtVersionPrefix').textContent = t('versionPrefix');
   document.getElementById('btnLang').textContent = t('langBtn');
   if(!state.running) document.getElementById('seqStatus').textContent = t('seqDefault');
-  if(state.chord) buildVoiceGrid(); // 重建選單讓「不使用」文字更新語言（選中值需還原）
+  document.getElementById('txtVoiceInstruction').textContent = t('voiceInstruction');
+  document.getElementById('txtVoiceScrollHint').textContent = t('voiceScrollHint');
+  if(state.chord) buildVoiceGrid(); // 重建鍵盤與聲部標籤讓文字更新語言（指派狀態會保留）
   renderAssignList();
   drawChart();
 }
@@ -803,10 +1008,8 @@ function setButtonsRunning(running){
   document.getElementById('btnParse').disabled = running;
   // 「播放和弦」練習進行中也保持可以按，不整個鎖住——但 toggleFullChord() 內部
   // 會在練習中自動排除目標音（避免喇叭播出目標音被麥克風誤收，變成沒唱就判定「準」）。
-  PARTS.forEach(p=>{
-    const sel = document.getElementById('select-'+p);
-    if(sel) sel.disabled = running;
-  });
+  if(running) armedPart = null;
+  if(state.chord) renderVoiceKeyboard(); // 練習中把聲部 chip 變灰、鍵盤仍可視但不可再指派
   if(!running){
     setToggleLabel('btnMicToggle', false, t('micOff'), t('micOn'));
   }
@@ -918,6 +1121,28 @@ function detectPitch(buf, sampleRate, minFreq, maxFreq){
   return {freq, rms, clarity};
 }
 
+/**
+ * 計算音高偵測的搜尋範圍。
+ * 舊版只鎖定「目前目標音」的 0.75x~1.7x，導致使用者測試其他已指派聲部
+ * （例如先配 Bass、還沒切換目標，或刻意想確認 Tenor 音準）時，真正的基頻
+ * 落在搜尋範圍之外，演算法被迫抓到落在範圍內的泛音（通常高一個八度），
+ * 呈現「唱得到一半突然往上跳到目標音附近」的假象。
+ * 新版改成涵蓋「所有已指派聲部」的最低到最高音，不管目前在唱哪一個聲部、
+ * 目標有沒有切過去，都能正確涵蓋到真正的基頻。
+ */
+function computeSearchRange(voicing, targetInfo){
+  const freqs = Object.values(voicing || {}).map(v=>v.freq).filter(f=>f>0);
+  if(freqs.length){
+    const lo = Math.min(...freqs);
+    const hi = Math.max(...freqs);
+    return { min: lo*0.85, max: hi*1.35 };
+  }
+  if(targetInfo){
+    return { min: targetInfo.freq*0.75, max: targetInfo.freq*1.7 };
+  }
+  return { min: 55, max: 1100 };
+}
+
 function loopPitch(ts){
   if(!state.listening) return;
   state.rafId = requestAnimationFrame(loopPitch);
@@ -930,13 +1155,8 @@ function loopPitch(ts){
   const sampleRate = state.audioCtx.sampleRate;
 
   const targetInfo = state.target ? state.voicing[state.target] : null;
-  let searchMin=55, searchMax=1100;
-  if(targetInfo){
-    // 目標音附近留寬鬆的緩衝空間（往下小三度、往上大六度左右），
-    // 避免唱偏就找不到、被迫抓到八度替代訊號 —— 跟之前七和弦 app 修正過的問題同樣道理。
-    searchMin = targetInfo.freq * 0.75;
-    searchMax = targetInfo.freq * 1.7;
-  }
+  const searchRange = computeSearchRange(state.voicing, targetInfo);
+  const searchMin = searchRange.min, searchMax = searchRange.max;
   const {freq, rms, clarity} = detectPitch(buf, sampleRate, searchMin, searchMax);
 
   let point = {cents:null, voiced:false};
